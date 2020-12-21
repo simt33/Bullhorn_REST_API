@@ -3,6 +3,7 @@ import requests
 import webbrowser
 import urllib.parse as urlparse
 from urllib.parse import parse_qs
+from datetime import date
 import json
 
 
@@ -59,6 +60,38 @@ def get_candidate_info(candidate_id):
       response = requests.get(url)
       print(response.content)
 
+def get_jobsub_info(jobsub_id):
+    url = (restURL + f"entity/JobSubmission/{jobsub_id}?BhRestToken={BhRestToken}&fields=id, candidate, status")
+    print(url)
+    response = requests.get(url)
+    print(response.content)
+
+
+def get_jobsub_history(jobsub_id):
+    url = (restURL + f"query/JobSubmissionHistory?where=dateAdded=&BhRestToken={BhRestToken}&fields=id")
+    response = requests.get(url)
+    print(response.content)
+
+
+def get_jobsub_history_by_date(date):
+    url = (restURL + f"query/JobSubmissionHistory?where=dateAdded>20201220&BhRestToken={BhRestToken}&fields=id,jobSubmission,status,dateAdded&count=100")
+    print(url)
+    response = requests.get(url)
+    print(response.content)
+
+
+def get_events(sub_id,max_events):
+    url = (restURL + f"event/subscription/{sub_id}?BhRestToken={BhRestToken}&maxEvents={max_events}")
+    response = requests.get(url)
+    print(response.content)
+
+
+
+def create_event_subscription(sub_id):
+    url = (restURL + f"event/subscription/{sub_id}?BhRestToken={BhRestToken}&type=entity&names=JobSubmissionHistory&eventTypes=INSERTED,UPDATED,DELETED")
+
+    response = requests.put(url)
+    print (response.content)
 
 # Authenticates and logs into REST API. Fetches sessions details into BhRestToken and restURL
 auth = request_auth_code()
@@ -67,5 +100,11 @@ session_details = rest_login()
 BhRestToken = session_details['BhRestToken']
 restURL = session_details['restUrl']
 
-get_candidate_info(166038)
+#create_event_subscription(104)
+
+#get_events(103, 100)
+
+#get_jobsub_info(94649)
+
+get_jobsub_history_by_date('[20201213]')
 
