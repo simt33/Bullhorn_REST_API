@@ -14,14 +14,10 @@ def request_auth_code():
           f"&response_type=code&action=Login&username={username}&password={password}" \
           f"&state={state_val}"
 
-    print(url)
-
     response = requests.get(url)
 
     parsed = urlparse.urlparse(response.url)
-    print(response.url)
     auth_code = (parse_qs(parsed.query)['code'])[0]
-    print("Authorisation code is: " + auth_code)
 
     return auth_code
 
@@ -53,17 +49,30 @@ def rest_login():
 
     return data
 
-
+# Fetches candidate info from id or list of ids
 def get_candidate_info(candidate_id):
     if isinstance(candidate_id, str):
         candidate_id_string = candidate_id
     elif isinstance(candidate_id, list):
         candidate_id_string = ','.join(str(e) for e in candidate_id)
 
-    url = (restURL + f"entity/Candidate/{candidate_id_string}?BhRestToken={BhRestToken}&fields=firstName,lastName,email")
+    url = (restURL + f"entity/Candidate/{candidate_id_string}?BhRestToken={BhRestToken}&fields=id,firstName,lastName,email")
 
     response = requests.get(url)
-    print(response.content)
+    return response.content
+
+# Fetches job info from id or list of ids
+def get_jobOrder_info(joborder_id):
+    if isinstance(joborder_id, str):
+        joborder_id_string = joborder_id
+    elif isinstance(joborder_id, list):
+        joborder_id_string = ','.join(str(e) for e in joborder_id)
+
+    url = (restURL + f"entity/JobOrder/{joborder_id_string}?BhRestToken={BhRestToken}&fields=id,title,clientCorporation")
+
+    response = requests.get(url)
+
+    return response.content
 
 # Fetches jobsub info from id or list of ids
 def get_jobsub_info(jobsub_id):
@@ -73,9 +82,8 @@ def get_jobsub_info(jobsub_id):
         jobsub_id_string = ','.join(str(e) for e in jobsub_id)
 
     url = (restURL + f"entity/JobSubmission/{jobsub_id_string}?BhRestToken={BhRestToken}&fields=id, candidate, status, jobOrder, dateAdded")
-    print(url)
+
     response = requests.get(url)
-    print(response.content)
 
     return response.content
 
@@ -84,7 +92,6 @@ def get_jobsub_info(jobsub_id):
 def get_jobsub_history(jobsub_id):
     url = (restURL + f"query/JobSubmissionHistory?where=dateAdded=&BhRestToken={BhRestToken}&fields=id")
     response = requests.get(url)
-    print(response.content)
 
 
 #Fetches all jobsub
@@ -99,16 +106,12 @@ def get_cvs_jobsub_ids(days):
             date_adj = datetime.datetime(date.year, date.month, date.day, date.hour, date.minute, date.second,
                                          date.microsecond).timestamp()
             date_adj = int(date_adj * 1000)
-            print(date_adj)
             return date_adj
 
         date = get_previous_date(days)
-        url = (
-                    restURL + f"query/JobSubmissionHistory?where=dateAdded>{date}&BhRestToken={BhRestToken}&fields=id,jobSubmission,status,dateAdded&count=500")
+        url = (restURL + f"query/JobSubmissionHistory?where=dateAdded>{date}&BhRestToken={BhRestToken}&fields=id,jobSubmission,status,dateAdded&count=500")
 
-        print(url)
         response = requests.get(url)
-        print(response.content)
 
         return response.content
 
