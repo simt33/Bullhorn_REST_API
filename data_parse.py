@@ -1,8 +1,8 @@
 import pandas as pd
 import datetime
 
-
-def get_jobsub_ids_from_cvsends(input):
+# Selects all jobsub changes where status was set to 'CV Sent' or 'CV send'. Returns a list of jobsub ids.
+def data_extract_jobsub_ids_where_cvsent(input):
 
     data = pd.read_json(input)
     df = data['data']
@@ -16,11 +16,18 @@ def get_jobsub_ids_from_cvsends(input):
 
     return jobsub_id_list
 
-def list_to_str():
+def data_extract_all_ids(input):
 
-    list = [13, 14, 3351]
-    string = ','.join(str(e) for e in list)
+    data = pd.read_json(input)
+    jobsub_data = pd.DataFrame(data['data'].values.tolist())
+    print (jobsub_data)
+    cand_data = pd.DataFrame(jobsub_data['candidate'].values.tolist())
+    print (cand_data)
+    job_data = pd.DataFrame(jobsub_data['jobOrder'].values.tolist())
+    print (job_data)
 
-    print (string)
+    all_ids = pd.concat((jobsub_data[['id', 'dateAdded']], cand_data['id'], job_data['id']), axis=1, join='inner')
+    all_ids.columns = ['jobsub_id', 'jobsub_dateAdded','candidate_id', 'job_data_id']
 
-list_to_str()
+    print( all_ids)
+    return (all_ids)
