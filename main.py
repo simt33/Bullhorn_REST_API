@@ -1,4 +1,5 @@
 from api_requests import *
+from openpyxl import *
 
 # Number of days back to search for CV sends.
 days_past = 3
@@ -27,7 +28,8 @@ job_info_all.columns = ['id','job_title', 'client_name']
 
 all_data = all_ids.merge(cand_info_df, left_on='candidate_id', right_on='id', suffixes=('_all', '_candidate'))
 all_data = all_data.merge(job_info_all, left_on='joborder_id', right_on='id', suffixes=('_all', '_jobOrder'))
+all_data = all_data.drop(columns=['id_all', 'id_jobOrder'])
 
-print (all_data)
+all_data.to_excel('CVs_Sent.xlsx')
 
 
